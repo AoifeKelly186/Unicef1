@@ -1,0 +1,369 @@
+---
+title: "<span style='color:purple;'>A Global Perspective:</span>"
+subtitle: "<span style='color:purple;'>Navigating the Weight of Tommorow, Today</span>" 
+author: Aoife Kelly
+date: "2024-04-10"
+format: 
+  html:
+    toc: true
+    theme: sandstone
+    backgroundcolor: lightblue
+execute: 
+  echo: false
+  warning: false
+  message: false
+  
+---
+
+## <span style='color:darkblue;'>Introduction</span>
+### Critical Global Health Issue regarding Overweight Children
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Right Aligned Image</title>
+    <style>
+        /* CSS to float the image to the right */
+        .right-align {
+            float: right;
+            width: 200px; /* Set the width of the image */
+            margin-left: 20px; /* Optional: Add some margin for spacing */
+        }
+    </style>
+</head>
+<body>
+    <img src="https://png.pngtree.com/png-clipart/20221224/original/pngtree-unicef-logo-png-image_8804721.png" alt="Description of the image" class="right-align">
+</body>
+</html>
+
+The amount of children under the age of 5 who are statistically <span style="color:red;">overweight</span> is becoming a critical global health issue impacting the well-being of children worldwide.The prevalence of <span style="color:red;">overweight</span> children in this age group has been steadily increasing, posing significant challenges to their physical health and future development. As we embark on this journey of <span style="color:blue;">**'Navigating the Weight of Tommorow, Today'**</span>, we must delve into the depths of <span style="color:purple;">***UNICEF***</span> data to unravel the story of our youngest generation grappling with the weight of today's lifestyle choices.
+
+This interactive dashboard offers a comprehensive examination of childhood <span style="color:red;">overweight</span> rates across different regions of the world, drawing on data from <span style="color:purple;">***UNICEF***</span>. Through a series of visualizations and insights, we aim to:
+
+1. **Illuminate the prevalence of overweight children**
+2. **Identify geographical variances**
+3. **Underscore the urgency of addressing this growing concern**
+
+It is important to engage with the data to gain deeper insights into the factors contributing to childhood overweight in order <span style="color:blue;">*to foster healthier environments and lifestyles for our youngest population.*</span>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Picture</title>
+<style>
+        /* CSS to center the image */
+        .center {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="center"> <!-- Create a container to center the image -->
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjlZrj8WI-uNlFHfFIZhkH4R7911XcmUgsIg&s">
+    </div>
+</body>
+</html>
+
+
+```{r}
+#| label: setup
+#| echo: false
+
+options(scipen = 999)
+
+#libraries to load
+library(tidyverse) 
+library(plotly)
+library(dplyr)
+library(gapminder)
+
+# data
+unicef_metadata <- read_csv("unicef_metadata.csv", 
+                            col_types = cols(alpha_2_code = col_skip(), 
+                                             alpha_3_code = col_skip(), numeric_code = col_skip(), 
+                                             iso3c = col_skip()))
+unicef_indicator_1 <- read_csv("unicef_indicator_1.csv", 
+                               col_types = cols(alpha_2_code = col_skip(), 
+                                                alpha_3_code = col_skip(), numeric_code = col_skip(), 
+                                                indicator = col_skip(), sex = col_skip(), 
+                                                unit_multiplier = col_skip(), unit_of_measure = col_skip(), 
+                                                observation_status = col_skip(), 
+                                                observation_confidentaility = col_skip(), 
+                                                time_period_activity_related_to_when_the_data_are_collected = col_skip(), 
+                                                current_age = col_skip()))
+data_right_3 <- read_csv("data_right_3.csv")
+
+
+# transformations
+data_join <- full_join(unicef_metadata, unicef_indicator_1)
+data_join <- full_join(unicef_metadata,unicef_indicator_1, by = c("country", "year" = "time_period"))
+data_join <- full_join(unicef_indicator_1, data_right_3)
+data_join <- full_join(unicef_indicator_1, data_right_3, by = c("country"))
+data_join <- full_join(unicef_metadata, data_right_3)
+data_join <- full_join(unicef_metadata, data_right_3, by = c("country"))
+
+# Final Data Object
+data_join <- unicef_metadata %>%
+  full_join(unicef_indicator_1, by = c("country", "year" = "time_period")) %>%
+  full_join(data_right_3, by = c("country"))
+```
+---
+
+## <span style='color:darkblue;'>Map Visualisations</span>
+### Differences between countries regarding the amount of overweight children in both 2000 and 2022.
+
+```{r}
+
+
+ map_world <- map_data("world")
+
+# Map 1
+data_join %>%
+  filter(year == 2022) %>%
+  full_join(map_world, by = c("country" = "region")) %>%
+  ggplot(aes(x = long, y = lat, group = group, fill = obs_value)) +
+  geom_polygon() +
+  scale_fill_gradient(low = "#FF9999", high = "#9999FF", na.value = "lightgrey") +
+  labs(
+    title = "The amount of Overweight Children per country in 2000",
+    subtitle = "Countries in grey have no data due to a mismatch with their names",
+    caption = "Source : R package {gapminder}",
+    x = "Longitude",
+    y = "Latitude",
+    fill = "obs_value"
+  ) +
+  theme_bw()
+
+```
+
+---
+
+<div style='color: #333; font-size: 16px;'>The two world maps help depict the number of <span style="color:red;">overweight</span> children (under 5) for every 1000 people per country in 2000 and 2022 by providing a visual representation of the <span style="color:blue;">**changes in the childhood overweight category over two decades.**</span> In order to show comparison overtime the data in put in map format for both 2000 and 2022, viewers can quickly compare and contrast the prevalence of childhood obesity in different countries across the two time periods. This visual comparison enables **easy identification of trends and changes over time.** With the help of <span style="color:blue;">c</span><span style="color:red;">o</span><span style="color:purple;">l</span><span style="color:green;">o</span><span style="color:yellow;">u</span><span style="color:blue;">r</span>-<span style="color:red;">c</span><span style="color:green;">o</span><span style="color:purple;">d</span><span style="color:blue;">i</span><span style="color:yellow;">n</span><span style="color:blue;">g</span> to represent data, where darker shades indicate higher numbers or percentages. In this case, viewers can easily see which countries had higher levels of childhood <span style="color:red;">overweightness</span> in each year and how those levels have changed over time. For instance, if a country's shade becomes lighter from 2000 to 2022, it suggests a decrease in childhood <span style="color:red;">overweightness</span>, whereas a darker shade indicates an increase.</div>
+
+---
+
+```{r}
+# Map 2
+data_join %>%
+  filter(year == 2000) %>%
+  full_join(map_world, by = c("country" = "region")) %>%
+  ggplot(aes(x = long, y = lat, group = group, fill = obs_value)) +
+  geom_polygon() +
+scale_fill_gradient(low = "#FF9999", high = "#9999FF", na.value = "lightgrey") +
+  labs(
+    title = "The amount of Overweight Children per country in 2000",
+    subtitle = "Countries in grey have no data due to a mismatch with their names",
+    caption = "Source : R package {gapminder}",
+    x = "Longitude",
+    y = "Latitude",
+    fill = "obs_value"
+  ) +
+  theme_bw()
+```
+
+---
+  
+## <span style='color:darkblue;'>Time Series Visualisation</span>
+### Population Dynamics overtime since 1952 across different continets and regions.
+
+---
+
+```{r}
+
+# Time Series 
+data_join <- gapminder %>%
+filter(!is.na(continent))
+
+timeseries_plot_1 <- data_join %>%
+  ggplot() +
+  aes(year, pop, group = country, color = continent) +
+  geom_line() +
+  labs(
+    title = "Differences in population rates overtime",
+    caption = "Source : R package {gapminder}",
+    x = "Year",
+    y = "Population",
+    color = "continent"
+  ) +
+  theme_bw()
+
+ggplotly(timeseries_plot_1)
+
+```
+
+---
+
+<div style='color: #333; font-size: 16px;'>The x-axis represents the years under consideration, while the y-axis depicts the total population size. Each line on the graph represents a distinct country, however they are further filtered by <span style="color:blue;">c</span><span style="color:red;">o</span><span style="color:purple;">l</span><span style="color:green;">o</span><span style="color:yellow;">u</span><span style="color:blue;">r</span>-<span style="color:red;">c</span><span style="color:green;">o</span><span style="color:purple;">d</span><span style="color:blue;">i</span><span style="color:yellow;">n</span><span style="color:blue;">g</span> by their continent to facilitate easy identification. By plotting population data over multiple years, the graph enables viewers to <span style="color:blue;">**observe changes and trends in population size**</span> within each country and particularly grouped by continent over time. 
+
+This temporal analysis provides insights into 
+
+1.  **population growth**;
+2.  **demographic shifts**;
+3.  other long-term patterns i.e., **historical events**. 
+
+Viewers can compare population trends between continents or regions by examining the respective lines on the graph. Upon examining the line graph, viewers can glean valuable insights into <span style="color:purple;">**global population dynamics.**</span> They may observe, for instance, the population growth in some Asian countries alike <span style="color:red;">**India**</span> and <span style="color:red;">**China**</span> have huge population rates. <span style="color:red;">**Peaks**</span> and <span style="color:red;">**dips**</span> in the lines may correspond to significant historical events, such as wars, economic recessions, or natural disasters, which have <span style="color:blue;">**influenced population trends in specific regions.**</span></div>
+
+---
+  
+## <span style='color:darkblue;'>Scatterplot Visualisation</span>
+### Evolution of the Relationship between Life Expectancy and GDP per capita in intervals from 1965 to 2021 per continent.
+
+---
+
+```{r}
+
+
+# Scatter Plot
+
+filtered_data <- unicef_metadata %>%
+  filter(year %in% c(1965,1980, 2000, 2021))
+
+ggplot(filtered_data) +
+  aes(x = `GDP per capita (constant 2015 US$)`, 
+      y = `Life expectancy at birth, total (years)`, 
+      color = country, 
+      size = `Population, total`) +
+  geom_point(alpha = 0.4) + 
+  facet_wrap(~ year, nrow = 1) +
+  scale_x_continuous(
+    limits = c(0,50000),
+    breaks = c(20000, 40000),
+    labels = scales :: dollar_format(scale = 0.01)
+    ) +
+  scale_size_continuous(
+    range = c(1, 10),  # Adjusted range
+    breaks = c(1000000, 10000000),  # Adjusted breaks
+    labels = scales::comma
+    ) +
+  labs(
+    x = "GDP per Capita in USD",
+    y = "Life Expectancy in years",
+        title = "The Relationship between Life Expectancy and GDP"
+    ) +
+  guides(color = "none", size = "none") +
+  theme_classic() +
+  theme(text = element_text(family = "serif"))
+
+```
+<div style='color: #333; font-size: 16px;'>This scatterplot visualizes the relationship between life expectancy and GDP overtime. The x-axis represents GDP per capita, a <span style="color:blue;">***measure of economic prosperity***</span>, while the y-axis depicts life expectancy at birth, an indicator of overall health and well-being. Each data point on the plot represents a country, and the size of the dots corresponds to the population size of that country. The scatterplot looks at the years ***1965, 1980, 2000 and 2021***. This feature enables viewers to observe how the relationship between life expectancy and GDP has evolved over different time periods, providing insights into trends and patterns. The graph has also <span style="color:blue;">c</span><span style="color:red;">o</span><span style="color:purple;">l</span><span style="color:green;">o</span><span style="color:yellow;">u</span><span style="color:blue;">r</span>-<span style="color:red;">c</span><span style="color:green;">o</span><span style="color:purple;">d</span><span style="color:blue;">e</span><span style="color:yellow;">d</span> <span style="color:blue;">***each country to its specific continent***</span>, this provides us with an insight into regional statistics. From the graph we can see Africa has remained the continent with the lowest life expectancy and GDP levels. This graph shows that <span style="color:purple;">as GDP rises the ***quality of life and length of life increases***.</span> This is central to the topic on childhood overweightness as with a higher quality of physical well-being from the outset of a childs life can in fact reflect the <span style="color:red;">***trajectory of their life***.</span> It is important we look to graphs like this to gain a deeper understanding on the issue.</div>
+
+---
+  
+## <span style='color:darkblue;'>Barchart Visualisation</span>
+### Evolution of the Average Life Expectancy per continent from 1965 to 2021 per continent.
+
+
+```{r}
+
+
+# Bar Chart 
+
+
+filtered_data <- unicef_metadata %>%
+  filter(year %in% c(1965, 1980, 2000, 2021))
+
+
+filtered_data <- left_join(filtered_data, data_join, by = "country")
+  
+filtered_data <- filtered_data %>%
+  filter(!is.na(continent))
+  
+avg_life_expectancy <- filtered_data %>%
+  group_by(year.x, continent) %>%
+  summarise(m_lifeexp = mean(`Life expectancy at birth, total (years)`, na.rm = TRUE))
+
+ggplot(avg_life_expectancy, aes(x = reorder(continent, m_lifeexp, FUN = median), y = m_lifeexp, fill = continent)) +
+  geom_col() +
+  facet_wrap(~ year.x, nrow = 1) +
+  labs(
+    x = "Time Period",
+    y = "Average Life Expectancy",
+    fill = "Continent",
+    title = "The Average Life Expectancy per continent"
+  ) +
+  theme_classic() + 
+  theme(
+    text = element_text(family = "serif"),
+    axis.text.x = element_blank()
+  ) +
+  scale_fill_manual(values = c("#FF9999", "#FFFF66", "#99FF99", "#9999FF", "#FF99FF"))
+
+
+
+
+
+
+```
+
+<div style='color: #333; font-size: 16px;'>A bar chart depicting life expectancy rates per continent across different decades provides a <span style="color:blue;">**comprehensive view of global health trends and disparities.**</span> Childhood obesity rates are closely linked to overall population health and can also be reflected in trends related to life expectancy.By visually comparing the data, viewers can discern several insights: <span style="color:blue;">***High childhood obesity rates may signal poor health outcomes in adulthood***</span>, potentially <span style="color:purple;">***impacting life expectancy.***</span> Therefore, a region with high childhood obesity rates may also experience challenges in improving life expectancy over time. The bar chart is an easy to read visualization with it spanning over several decades indicated by their respective continents through <span style="color:blue;">c</span><span style="color:red;">o</span><span style="color:purple;">l</span><span style="color:green;">o</span><span style="color:yellow;">u</span><span style="color:blue;">r</span>-<span style="color:red;">c</span><span style="color:green;">o</span><span style="color:purple;">d</span><span style="color:blue;">i</span><span style="color:yellow;">n</span><span style="color:blue;">g</span>.
+
+
+<span style="color:red;">Socioeconomic Factors</span> : Childhood obesity rates often correlate with socioeconomic factors such as :
+
+-   **income inequality;**
+-   access to **healthy food options;**
+-   opportunities for **physical activity.** 
+
+Disparities in childhood obesity rates within and across continents may <**span style="color:purple;">reflect underlying inequalities**</span> that contribute to variations in life expectancy.</div>
+
+---
+
+
+## <span style='color:darkblue;'>Conclusion</span>
+
+### Critical Global Health Issue regarding Overweight Children
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Left Aligned Image</title>
+    <style>
+        /* CSS to float the image to the left */
+        .right-align {
+            float: right;
+            width: 200px; /* Set the width of the image */
+            margin-right: 20px; /* Optional: Add some margin for spacing */
+        }
+    </style>
+</head>
+<body>
+    <img src="https://png.pngtree.com/png-clipart/20221224/original/pngtree-unicef-logo-png-image_8804721.png" alt="Description of the image" class="right-align">
+</body>
+</html>
+
+In conclusion, the visualization of <span style="color:red;">overweight</span> children under the age of 5 through various graphs <span style="color:blue;">**offers a compelling glimpse into the severity of the issue**</span> and its geographical distribution. By employing diverse graphical representations such as line graphs, choropleth maps, and scatterplots, we were able to provide a nuanced understanding of the prevalence of childhood overweight across different regions and over time.
+
+The data presented shed light on the disparities in childhood <span style="color:red;">overweight</span> rates between countries and continents, emphasizing the need for targeted interventions and policy initiatives to address this public health challenge. Additionally, the interactive features of the visualizations allowed for dynamic exploration of the data, enabling stakeholders <span style="color:purple;">***to identify trends, patterns, and potential areas for intervention***</span>.
+
+Moving forward, it is imperative to continue monitoring and addressing the factors contributing to childhood overweight, including :
+
+-  **socioeconomic status**;
+-  **access to healthy food options**;
+-  **opportunities for physical activity**;
+-  **education** etc.,
+
+Through ongoing research, collaboration, and evidence-based interventions, we can <span style="color:purple;">**work towards ensuring a healthier future for our youngest generation**</span> in <span style="color:blue;">**'Navigating the Weight of Tommorow, Today'**</span>.
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Picture</title>
+<style>
+        /* CSS to center the image */
+        .center {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="center"> <!-- Create a container to center the image -->
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjlZrj8WI-uNlFHfFIZhkH4R7911XcmUgsIg&s">
+    </div>
+</body>
+</html>

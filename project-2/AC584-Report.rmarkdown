@@ -1,0 +1,90 @@
+---
+title: "<span style='color:darkblue;'>A Global Perspective:</span>"
+subtitle: "<span style='color:darkblue;'>Navigating the Weight of Tommorow, Today</span>" 
+author: Aoife Kelly
+date: "2024-04-01"
+format: 
+  html:
+    theme: sandstone
+    backgroundcolor: lightblue
+execute: 
+  echo: false
+  warning: false
+  message: false
+---
+
+
+## Introduction
+
+### Critical Global Health Issue regarding Overweight Children
+
+The amount of children under the age of 5 who are statistically <span style="color:red;">overweight</span> is becoming a critical global health issue impacting the well-being of children worldwide.The prevalence of <span style="color:blue;">overweight</span> children in this age group has been steadily increasing, posing significant challenges to their physical health and future development. As we embark on this journey of <span style="color:blue;">**'Navigating the Weight of Tommorow, Today'**</span>, we must delve into the depths of <span style="color:purple;">***UNICEF***</span> data to unravel the story of our youngest generation grappling with the weight of today's lifestyle choices.
+
+This interactive dashboard offers a comprehensive examination of childhood <span style="color:red;">overweight</span> rates across different regions of the world, drawing on data from <span style="color:purple;">***UNICEF***</span>. Through a series of visualizations and insights, we aim to:
+
+1. **Illuminate the prevalence of overweight children**
+2. **Identify geographical variances**
+3. **Underscore the urgency of addressing this growing concern**
+
+It is important to engage with the data to gain deeper insights into the factors contributing to childhood overweight in order *to foster healthier environments and lifestyles for our youngest population.*
+
+
+
+```{r}
+#| label: setup
+#| echo: false
+
+#libraries to load
+library(tidyverse) 
+library(plotly)
+
+# data
+unicef_metadata <- read_csv("unicef_metadata.csv", 
+                            col_types = cols(alpha_2_code = col_skip(), 
+                                             alpha_3_code = col_skip(), numeric_code = col_skip(), 
+                                             iso3c = col_skip()))
+unicef_indicator_1 <- read_csv("unicef_indicator_1.csv", 
+                               col_types = cols(alpha_2_code = col_skip(), 
+                                                alpha_3_code = col_skip(), numeric_code = col_skip(), 
+                                                indicator = col_skip(), sex = col_skip(), 
+                                                unit_multiplier = col_skip(), unit_of_measure = col_skip(), 
+                                                observation_status = col_skip(), 
+                                                observation_confidentaility = col_skip(), 
+                                                time_period_activity_related_to_when_the_data_are_collected = col_skip(), 
+                                                current_age = col_skip()))
+data_right_3 <- read_csv("data_right_3.csv")
+
+
+# transformations
+data_join <- full_join(unicef_metadata, unicef_indicator_1)
+data_join <- full_join(unicef_metadata,unicef_indicator_1, by = c("country", "year" = "time_period"))
+data_join <- full_join(unicef_indicator_1, data_right_3)
+data_join <- full_join(unicef_indicator_1, data_right_3, by = c("country"))
+data_join <- full_join(unicef_metadata, data_right_3)
+data_join <- full_join(unicef_metadata, data_right_3, by = c("country"))
+
+# Final Data Object
+data_join <- unicef_metadata %>%
+  full_join(unicef_indicator_1, by = c("country", "year" = "time_period")) %>%
+  full_join(data_right_3, by = c("country"))
+
+```
+
+```{r}
+map_world <- map_data("world")
+
+# Maps
+map_data_join <- full_join(data_join, map_world, by = c("country" = "region"))
+  
+map_world <- map_data("world")
+
+# Map 1
+data_join %>%
+  filter(time_period == 2020) %>%
+  full_join(map_world, by = c("country" = "region")) %>%
+  ggplot(aes(x = long, y = lat, group = group, fill = obs_value)) +
+  geom_polygon()
+
+
+```
+
